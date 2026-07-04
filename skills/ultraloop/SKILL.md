@@ -1,21 +1,19 @@
 ---
 name: ultraloop
 description: >
-  "A task isn't done until it's verified and actually works" mode, right-sized to the task.
-  Overrides the default "code written = done", but first triages scale and calibrates: for a
-  small self-contained snippet it writes the solution immediately on sensible defaults with
-  assumptions stated (no interrogation, no max-turns ceremony); for a real feature or workflow
-  it runs the full ritual — recon the repo to answer its own questions, then clarify only what
-  the code can't tell it, agree a Definition of Done and an iteration budget (max turns), then
-  work autonomously looping change→tests→build→lint→live check
-  (Playwright / Computer Use)→fix until every DoD item is green, and only then assemble a clean
-  PR that passes CI/CD.
-  ALWAYS use this skill when the user writes "ultraloop" or "/ultraloop", and whenever they
-  ask to drive a task to completion autonomously with real verification that it works:
-  "make it and verify it works", "don't stop until it works", "get CI green", "work on your
-  own until I'm back", "verify until it actually works" (RU: «доведи до конца», «не
-  останавливайся пока не заработает», «работай сам пока я не вернусь», «доведи до зелёного CI»).
-  Not needed for a pure factual question or a trivial one-liner you can just answer inline.
+  Completion discipline for coding agents: a task is done only when the result is verified and
+  demonstrably works — not when the code is written. Overrides the default "code written = done"
+  and right-sizes its process to the task. For a small, self-contained change it delivers the
+  solution immediately on sensible defaults with its assumptions stated, without unnecessary
+  questions or process overhead. For a feature or multi-step effort in a real project it inspects
+  the repository first to answer its own questions, asks only what the code cannot reveal, agrees
+  an explicit Definition of Done and an iteration budget (max turns), then executes autonomously
+  — looping change → tests → build → lint → live check (Playwright / Computer Use) → fix until
+  every criterion passes — before assembling a clean pull request that passes CI/CD. Use this
+  skill whenever the user invokes "ultraloop" or "/ultraloop", or asks to carry a task through to
+  a verified, working result on its own — for example "make it and verify it works", "don't stop
+  until it works", "get CI green", "work on it while I'm away", or "verify it actually works". It
+  is not needed for a pure factual question or a trivial one-liner that can be answered inline.
 user-invocable: true
 argument-hint: "<task description>"
 ---

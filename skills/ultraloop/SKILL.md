@@ -195,7 +195,12 @@ substantive information — what's verified, what's red, what's left.
   repeating it.
 - State outcomes, not process: "tests green (42 pass)", "typecheck red at `foo.ts:10`, fixing",
   "POST returns 201, duplicate → 409 confirmed". Skip the play-by-play.
-- If a turn has nothing new to say, say nothing. Silence beats a paragraph that restates the plan.
+- Report each step's status **once**. No running commentary between steps — save it for the final
+  report; if a turn has nothing new, say nothing.
+- **A blocker claim requires action first and the exact error.** Before you write "can't" /
+  "blocked" / "not possible", run the command or read the file that would prove it, and quote the
+  real `stderr` alongside the claim. A "blocker" with no error text is not a blocker — it's a
+  check you haven't run.
 
 ---
 
@@ -240,15 +245,25 @@ a green run, a page screenshot/snapshot. The belief "I wrote it correctly" is no
 Work in short iterations, not one big "write everything → check at the end" pass. The earlier
 you catch a failure, the cheaper the fix.
 
+**Sync to base BEFORE you start.** `git fetch origin`, then rebase (or merge, per the repo's
+convention) onto `origin/<base>`. Resolve any conflicts now, not later: `git status`, and confirm
+no markers remain (`grep -rn '<<<<<<<' .`). Keep it to one logical change per PR.
+
 One iteration:
 
 1. **Change** — the smallest coherent step toward the next DoD item.
-2. **Checks** — run the relevant ones: tests → build → lint/types → live check. Actually run
-   them, read the output, don't rely on "should work".
+2. **Checks — run the project's FULL suite:** lint, type-check, tests, build, then the live
+   check. Take the exact commands from `package.json` scripts / `Makefile` / the CI config —
+   don't invent them. Actually run them and read the output; don't rely on "should work". If a
+   check won't run, print the exact reason (`stderr`) — never skip it silently.
 3. **Diagnosis** — if something is red, find the **root cause**, don't patch the symptom. For
    a non-trivial bug, bring in the `debugger` subagent; tests for new logic can go to
    `test-engineer`.
 4. **Fix → repeat.** Don't leave the loop until ALL DoD items are green.
+
+**Per-check attempt cap: 3.** Give any single failing check at most 3 fix attempts. If it's
+still red after the third, stop grinding it — report the exact error (`stderr`) and what you
+already tried. This sits under the max-turns limit so you never loop on one check forever.
 
 **Keep a short iteration log** — so you don't go in circles or fix the same thing twice. One
 or two lines per iteration:
@@ -398,6 +413,14 @@ the harness, so you'll be notified on completion; keep the wakeup as a fallback.
 
 ## Before "done" (heavy mode): satisfy the request in full, then security-check
 
+**A heavy task is "done" only when ALL of these hold at once — not a subset:**
+1. the change is implemented fully, not partially;
+2. the branch is synced to base with no conflicts;
+3. local checks are green: lint + types + tests + build;
+4. the PR is open and CI is green (left unmerged for a human — see Finish).
+
+While any one is unmet, the work is NOT finished — never announce success on partial progress.
+
 "Done" is measured against the user's actual request, not against your plan. Before the PR
 checks below:
 
@@ -464,6 +487,15 @@ deliver the code + tests + the one-step verification plan, tag it `written, not 
 mark the PR + green-CI step as *deferred until this is a repo with a remote*. Close out at the
 highest level the environment supports — and state plainly which level that is.
 
+**Final report — once, at the very end, nothing before it.** When you stop, report exactly:
+- **Changed** — the files touched.
+- **Checks** — lint / types / tests / build / CI, each with its status (green, or red + the exact
+  `stderr`).
+- **PR** — URL and state ("open, mergeable, required checks green — ready to merge", or why not).
+- **Blockers** — each real blocker with its exact error text and what you tried (within the
+  ≤3-attempts-per-check cap).
+No methodology recap, no play-by-play — just these four.
+
 ---
 
 ## Quick reference
@@ -476,11 +508,17 @@ highest level the environment supports — and state plainly which level that is
   blocking on defaultable forks) → DoD grounded in the real stack → build-verify-flag → autonomous
   execution. Ask max turns only when you actually enter the verify loop.
 - Done = observable evidence that it works, not "code written".
+- **Heavy stop-condition (all 4 at once):** implemented fully + branch synced to base (no
+  conflicts) + local lint/types/tests/build green + PR open & CI green (unmerged). Any one unmet
+  = not done; never announce success on partial progress.
 - **Separate verified from produced:** always ship the artifact (code + tests). Never fake green
   = never *claim* verified when you didn't. Tag `verified: green` vs `written, not yet run`.
 - Can't run the loop here (no net/deps/DB/git)? Deliver code + tests + exact run commands +
   expected results, tag `written, not yet run`, defer PR/CI — never withhold the code.
-- Heavy loop: change → tests/build/lint/live check → fix → repeat, with an iteration log.
+- Heavy loop: sync to base → change → run the FULL checks (lint/types/tests/build/live) using the
+  repo's own commands → fix → repeat, ≤3 attempts per failing check, with an iteration log.
+- A blocker claim needs the exact `stderr` and a command run first — not an assertion. Final
+  report once, at the end: changed files / per-check status / PR state / blockers.
 - **Report signal, not methodology:** what's verified / red / left; note self-verify once;
   nothing new → say nothing.
 - Long run → `ScheduleWakeup`, not polling. Heavy chunk → subagents; genuinely large → `Workflow`.

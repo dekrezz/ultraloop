@@ -444,16 +444,20 @@ is required:
 Reclassifying a red gate as "doesn't count" without checking its required status is a forbidden
 fake green (see "try the cheap check before you write anything off").
 
-**Never report "merged / in `main` / done" from an assumption** about how a merge or squash
-resolved. Before you say it landed:
-- verify what actually reached the base branch — `git fetch && git log origin/<base>` for your
-  commits / the PR;
-- confirm no conflicting open PRs are racing yours — `gh pr list --state open --base <base>`.
-Run both BEFORE the word "done", not after.
+**Open the PR — do NOT merge it.** Merging is the human's decision. Your terminal state for a
+heavy task is a clean, green, review-ready PR left open for a person to merge. Never run
+`gh pr merge`, and never report "merged" / "in `main`" / landed — you did not merge, so claiming
+it is a fake. Report the PR URL and its verified state instead.
 
-Then, and only then: a clean PR with meaningful atomic commits, a description listing the DoD
-items and their check results, and `gh pr merge --auto` after green CI/CD (don't push to `main`
-directly). Red required CI = task not closed → back into the loop.
+Before you call it done, confirm by command (not memory):
+- the PR is open and targets the right base — `gh pr view <pr> --json url,state,baseRefName`;
+- no conflicting open PRs are racing yours — `gh pr list --state open --base <base>`;
+- then state the outcome as "PR #N open, mergeable, required checks green — ready for review and
+  merge", not "done/merged". Red required CI = task not closed → back into the loop.
+
+So the finish is: a clean PR with meaningful atomic commits and a description listing the DoD
+items + their check results, pushed to a branch (never to `main` directly), CI green — **left
+unmerged for a human to review and merge.**
 
 **If it isn't a git repo with a remote, or CI can't run in this environment**, don't block:
 deliver the code + tests + the one-step verification plan, tag it `written, not yet run`, and
@@ -483,7 +487,8 @@ highest level the environment supports — and state plainly which level that is
 - **Before "done" (heavy):** every explicit ask delivered & working, item-by-item (no "remaining"
   leftovers) + a security pass over what you touched. Carry it to completion — delegate to
   subagents / a `Workflow` to *finish*, never hand back the rest.
-- **Finish (heavy) is proven by command before "done":** mergeable (no conflicts) + every
-  REQUIRED CI gate green + state re-read live. Never wave away a red gate — check if it's
-  required (required+red = not done; not-required+red = an open item, not a checkmark). Verify
-  what actually landed + no conflicting open PRs before saying "merged". Deferred if no git remote.
+- **Finish (heavy): open a clean PR, do NOT merge it** — leave the merge to a human. Prove it by
+  command before "done": mergeable (no conflicts) + every REQUIRED CI gate green + state re-read
+  live. Never wave away a red gate — check if it's required (required+red = not done;
+  not-required+red = an open item, not a checkmark). Report "PR #N open, green, ready to merge",
+  never "merged". Deferred if no git remote.

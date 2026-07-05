@@ -89,7 +89,9 @@ gh run view <run-id> --log-failed   # read only the failed step's log
 
 Flow: open the PR → wait for checks (poll the *external* CI, or sleep via `ScheduleWakeup` for
 long runs) → if red, `gh run view --log-failed`, fix the root cause, push, re-check → repeat.
-Only after all required checks are green: `gh pr merge --auto` (per the user's rules).
+Once all required checks are green, the PR is review-ready — **leave it open and unmerged for a
+human to merge** (do not run `gh pr merge`). Confirm required-vs-optional with
+`gh api repos/{owner}/{repo}/branches/{base}/protection/required_status_checks`.
 
 ### GitLab CI
 
@@ -100,7 +102,8 @@ glab ci trace <job>         # stream a job's log
 ```
 
 Same flow: create the MR → watch the pipeline → read the failed job's trace → fix root cause →
-push → re-check. Merge only after the pipeline is green.
+push → re-check. Once the pipeline is green the MR is review-ready — leave it open and unmerged
+for a human to merge; don't merge it yourself.
 
 ### Other CI
 
